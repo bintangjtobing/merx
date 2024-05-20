@@ -19,8 +19,6 @@ use Illuminate\Contracts\Support\Htmlable;
 class WarehousesResource extends Resource
 {
     protected static ?string $model = Warehouses::class;
-
-    protected static ?string $navigationIcon = 'heroicon-s-building-library';
     protected static ?string $navigationGroup = 'System management';
     protected static ?int $navigationSort = 1;
 

@@ -15,10 +15,6 @@ class Account extends Model
         'parent_id',
         'balance',
     ];
-
-    protected $casts = [
-        'balance' => 'decimal:2',
-    ];
     protected static function boot()
     {
         parent::boot();
