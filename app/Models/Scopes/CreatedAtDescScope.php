@@ -11,8 +11,8 @@ class CreatedAtDescScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      */
-    public function apply(Builder $builder, Model $model): void
-    {
-        $builder->orderBy('created_at', 'desc');
-    }
+    public function apply(Builder $builder, Model $model)
+{
+    $builder->orderBy($model->getTable() . '.created_at', 'desc');
+}
 }

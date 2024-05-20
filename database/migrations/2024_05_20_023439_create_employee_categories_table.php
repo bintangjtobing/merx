@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description')->nullable();
             $table->timestamps();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
         });
     }
 

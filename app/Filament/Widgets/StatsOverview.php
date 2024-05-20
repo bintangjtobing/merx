@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Products;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Warehouses;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -18,7 +18,7 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('success'),
-            Stat::make('Products', Products::query()->count())
+            Stat::make('Products', Product::query()->count())
                 ->description('All products from database')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('danger'),

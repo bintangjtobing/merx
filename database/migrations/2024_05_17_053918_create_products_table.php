@@ -31,8 +31,8 @@ return new class extends Migration
             $table->boolean('raw_material')->default(false);
             $table->string('unit_of_measure')->nullable();
             $table->unsignedBigInteger('warehouse_id')->nullable();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
             $table->timestamps();
         });
     }

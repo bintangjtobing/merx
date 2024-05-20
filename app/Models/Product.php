@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class Products extends Model
+class Product extends Model
 {
     use HasFactory;
 
@@ -46,5 +46,12 @@ class Products extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouses::class);
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_products')
+                    ->withPivot('quantity', 'price_per_unit', 'total_price')
+                    ->withTimestamps();
     }
 }

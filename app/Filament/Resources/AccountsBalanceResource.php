@@ -18,7 +18,6 @@ class AccountsBalanceResource extends Resource
 {
     protected static ?string $model = AccountsBalance::class;
 
-
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 2;
 
@@ -31,11 +30,10 @@ class AccountsBalanceResource extends Resource
                 Forms\Components\TextInput::make('balance')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('account_id')
-                    ->required()
-                    ->numeric(),
-
-
+                Forms\Components\Select::make('account_id')
+                    ->label('Account')
+                    ->relationship('account', 'name')
+                    ->required(),
             ]);
     }
 
@@ -46,11 +44,12 @@ class AccountsBalanceResource extends Resource
                 Tables\Columns\TextColumn::make('date')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('account.name')
+                    ->label('Account Name')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('balance')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('account_id')
-                    ->numeric()
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -60,10 +59,9 @@ class AccountsBalanceResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -79,7 +77,7 @@ class AccountsBalanceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

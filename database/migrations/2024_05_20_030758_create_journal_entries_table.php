@@ -23,8 +23,8 @@ return new class extends Migration
 
             // Opsional: relasi ke tabel lain seperti orders jika perlu
             $table->foreign('transaction_id')->references('id')->on('accounts_transactions');
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
         });
     }
 

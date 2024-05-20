@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('amount');
             $table->foreignId('account_id')->constrained();
             $table->timestamps();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
         });
     }
 

@@ -29,8 +29,8 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('emergency_contact_name')->nullable();
             $table->string('emergency_contact_phone_number')->nullable();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
             $table->text('notes')->nullable();
 
 

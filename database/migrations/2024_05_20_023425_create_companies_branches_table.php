@@ -21,8 +21,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('company_id');
             $table->timestamps();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
 
             // Buat constraint untuk kolom company_id
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');

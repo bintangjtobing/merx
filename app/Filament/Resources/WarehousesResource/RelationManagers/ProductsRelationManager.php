@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\WarehousesResource\RelationManagers;
 
-use App\Models\Products;
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -37,7 +37,7 @@ class ProductsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name')
                     ->label('Product Name')
                     ->sortable()
-                    ->description(fn (Products $record): string => $record->description)
+                    ->description(fn (Product $record): string => $record->description)
                     ->searchable(isIndividual:true, isGlobal:true),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')

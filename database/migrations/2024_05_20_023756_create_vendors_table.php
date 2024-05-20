@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->enum('transaction_type', ['customer', 'supplier']);
             $table->timestamps();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
         });
     }
 

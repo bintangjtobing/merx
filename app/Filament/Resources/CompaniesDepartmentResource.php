@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompaniesDepartmentResource\Pages;
 use App\Filament\Resources\CompaniesDepartmentResource\RelationManagers;
 use App\Models\CompaniesDepartment;
+use App\Models\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -26,15 +27,15 @@ class CompaniesDepartmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('responsibilities')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('company_id')
-                    ->required()
-                    ->numeric(),
-
-
+                ->required()
+                ->maxLength(255),
+            Forms\Components\TextInput::make('responsibilities')
+                ->maxLength(255),
+                Forms\Components\Select::make('company_id')
+                ->label('Company')
+                ->relationship('companies', 'name')
+                ->searchable()
+                ->required(),
             ]);
     }
 

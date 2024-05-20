@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompaniesBranchResource\Pages;
 use App\Filament\Resources\CompaniesBranchResource\RelationManagers;
 use App\Models\CompaniesBranch;
+use App\Models\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -26,21 +27,21 @@ class CompaniesBranchResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('address')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('phone_number')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('company_id')
-                    ->required()
-                    ->numeric(),
-
-
+                ->required()
+                ->maxLength(255),
+            Forms\Components\TextInput::make('address')
+                ->maxLength(255),
+            Forms\Components\TextInput::make('phone_number')
+                ->tel()
+                ->maxLength(255),
+            Forms\Components\TextInput::make('email')
+                ->email()
+                ->maxLength(255),
+            Forms\Components\Select::make('company_id')
+                ->label('Company')
+                ->relationship('companies', 'name')
+                ->searchable()
+                ->required(),
             ]);
     }
 

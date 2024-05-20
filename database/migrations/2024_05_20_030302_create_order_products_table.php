@@ -17,12 +17,12 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity');
             $table->integer('price_per_unit');
-            $table->integer('total_price'); // Opsional, jika Anda ingin menyimpan total per produk
+            $table->integer('total_price')->nullable(); // Make total_price nullable if optional
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products');
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
             $table->timestamps();
         });
     }

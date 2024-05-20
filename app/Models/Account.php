@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'name',
         'code',
         'parent_id',
         'balance',
     ];
+
     protected static function boot()
     {
         parent::boot();
@@ -26,6 +28,7 @@ class Account extends Model
             $model->user_updated = auth()->id();
         });
     }
+
     public function transactions()
     {
         return $this->hasMany(AccountsTransaction::class);
@@ -35,12 +38,32 @@ class Account extends Model
     {
         return $this->hasMany(AccountsBalance::class);
     }
+
     public function journalEntries()
     {
         return $this->hasMany(JournalEntry::class);
     }
+
     public function parent()
     {
         return $this->belongsTo(Account::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Account::class, 'parent_id');
+    }
+
+    public function getDepthAttribute()
+    {
+        $depth = 0;
+        $parent = $this->parent;
+
+        while ($parent) {
+            $depth++;
+            $parent = $parent->parent;
+        }
+
+        return $depth;
     }
 }

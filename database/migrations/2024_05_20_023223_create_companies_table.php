@@ -25,8 +25,8 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('industry')->nullable();
             $table->longText('description')->nullable();
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
             $table->timestamps();
         });
     }

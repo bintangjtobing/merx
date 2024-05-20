@@ -3,20 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountsTransactionResource\Pages;
-use App\Filament\Resources\AccountsTransactionResource\RelationManagers;
 use App\Models\AccountsTransaction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AccountsTransactionResource extends Resource
 {
     protected static ?string $model = AccountsTransaction::class;
-
 
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 3;
@@ -25,19 +21,28 @@ class AccountsTransactionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('type')
+                Forms\Components\Select::make('type')
+                    ->options([
+                        'debit' => 'Debit',
+                        'credit' => 'Credit',
+                    ])
                     ->required()
-                    ->maxLength(255),
+                    ->label('Transaction Type'),
                 Forms\Components\DatePicker::make('date')
-                    ->required(),
+                    ->required()
+                    ->label('Date'),
                 Forms\Components\TextInput::make('amount')
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('account_id')
+                    ->numeric()
+                    ->label('Amount'),
+                Forms\Components\Select::make('account_id')
+                    ->relationship('account', 'name')
                     ->required()
-                    ->numeric(),
-
-
+                    ->label('Account'),
+                Forms\Components\Textarea::make('description')
+                    ->label('Description')
+                    ->maxLength(255)
+                    ->nullable(),
             ]);
     }
 
@@ -46,28 +51,35 @@ class AccountsTransactionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('type')
+                    ->label('Transaction Type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Date'),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->sortable()
+                    ->label('Amount'),
+                Tables\Columns\TextColumn::make('account.name')
+                    ->label('Account Name')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('account_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Created At'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Updated At'),
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -83,7 +95,7 @@ class AccountsTransactionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

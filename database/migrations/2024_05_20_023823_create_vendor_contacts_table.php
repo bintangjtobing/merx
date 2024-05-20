@@ -20,8 +20,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('vendors_id')->references('id')->on('vendors')->onDelete('cascade');
-            $table->integer('user_created');
-            $table->integer('user_updated');
+            $table->integer('user_created')->nullable();
+            $table->integer('user_updated')->nullable();
         });
     }
 

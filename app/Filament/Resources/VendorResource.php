@@ -1,89 +1,100 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VendorResource\Pages;
-use App\Filament\Resources\VendorResource\RelationManagers;
 use App\Models\Vendor;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VendorResource extends Resource
 {
     protected static ?string $model = Vendor::class;
 
-
     protected static ?string $navigationGroup = 'Customer & Supplier';
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
+    public static function form(Forms\Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Name'),
                 Forms\Components\TextInput::make('address')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Address'),
                 Forms\Components\TextInput::make('phone_number')
                     ->tel()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Phone Number'),
                 Forms\Components\TextInput::make('email')
                     ->email()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('transaction_type')
-                    ->required(),
-
-
+                    ->maxLength(255)
+                    ->label('Email'),
+                Forms\Components\Select::make('transaction_type')
+                    ->required()
+                    ->options([
+                        'Supplier' => 'Supplier',
+                        'Customer' => 'Customer',
+                    ])
+                    ->label('Transaction Type'),
             ]);
     }
 
-    public static function table(Table $table): Table
+    public static function table(Tables\Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->label('Name'),
                 Tables\Columns\TextColumn::make('address')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->label('Address'),
                 Tables\Columns\TextColumn::make('phone_number')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->label('Phone Number'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('transaction_type'),
+                    ->searchable()
+                    ->sortable()
+                    ->label('Email'),
+                Tables\Columns\TextColumn::make('transaction_type')
+                    ->sortable()
+                    ->label('Transaction Type'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Created At'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Updated At'),
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

@@ -3,37 +3,32 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountResource\Pages;
-use App\Filament\Resources\AccountResource\RelationManagers;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\Section;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AccountResource extends Resource
 {
     protected static ?string $model = Account::class;
 
-
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'name';
+
     public static function getGlobalSearchResultTitle(Model $record): string
     {
         return $record->name;
     }
+
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name','code'];
+        return ['name', 'code'];
     }
+
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
@@ -46,28 +41,36 @@ class AccountResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('parent_id')
-                    ->label('Parent account')
-                    ->numeric(),
+                Forms\Components\Select::make('parent_id')
+                    ->label('Parent Account')
+                    ->relationship('parent', 'name')
+                    ->searchable()
+                    ->nullable(),
                 Forms\Components\TextInput::make('code')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('name')
+                    ->label('Account Code')
                     ->required()
                     ->maxLength(255),
-
+                Forms\Components\TextInput::make('name')
+                    ->label('Account Name')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('code')
-                ->label('Account Code')
+                    ->label('Account Code')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
-                ->label('Account Name')
+                    ->label('Account Name')
+                    ->formatStateUsing(function ($state, $record) {
+                        return str_repeat('&nbsp;', $record->depth * 4) . $state;
+                    })
+                    ->html()
                     ->searchable(),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -78,7 +81,7 @@ class AccountResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -94,7 +97,7 @@ class AccountResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

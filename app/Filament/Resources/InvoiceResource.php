@@ -16,42 +16,47 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
-
-
     protected static ?string $navigationGroup = 'Transaction Order';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('order_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('total_amount')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('paid_amount')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('balance_due')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DatePicker::make('invoice_date')
-                    ->required(),
-                Forms\Components\DatePicker::make('due_date')
-                    ->required(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
-            ]);
+        ->schema([
+            Forms\Components\Select::make('order_id')
+                ->label('Order')
+                ->relationship('order', 'kode_order')
+                ->searchable()
+                ->required(),
+            Forms\Components\TextInput::make('total_amount')
+                ->required()
+                ->numeric(),
+            Forms\Components\TextInput::make('paid_amount')
+                ->required()
+                ->numeric()
+                ->default(0),
+            Forms\Components\TextInput::make('balance_due')
+                ->required()
+                ->numeric(),
+            Forms\Components\DatePicker::make('invoice_date')
+                ->required(),
+            Forms\Components\DatePicker::make('due_date')
+                ->required(),
+            Forms\Components\Select::make('status')
+                ->options([
+                    'paid' => 'Lunas',
+                    'unpaid' => 'Belum Lunas',
+                    'partial' => 'Cicilan',
+                ])
+                ->required(),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('order_id')
+                Tables\Columns\TextColumn::make('kode_order')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_amount')

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class JournalEntry extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'account_id',
         'date',
@@ -18,15 +19,17 @@ class JournalEntry extends Model
         'transaction_id',
     ];
 
-    public function account()
-    {
-        return $this->belongsTo(Account::class);
-    }
     protected static function boot()
     {
         parent::boot();
         static::addGlobalScope(new CreatedAtDescScope());
     }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
     public function transaction()
     {
         return $this->belongsTo(AccountsTransaction::class, 'transaction_id');

@@ -17,7 +17,6 @@ class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
-
     protected static ?string $navigationGroup = 'Company Management';
     protected static ?int $navigationSort = 1;
 
@@ -36,10 +35,11 @@ class CompanyResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('website')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('logo')
-                    ->maxLength(255),
+                Forms\Components\FileUpload::make('logo')
+                    ->disk('public')
+                    ->directory('logos')
+                    ->previewable(true)
+                    ->rules(['image', 'max:2048']),
                 Forms\Components\TextInput::make('address')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('city')
@@ -50,12 +50,23 @@ class CompanyResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('country')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('industry')
-                    ->maxLength(255),
+                Forms\Components\Select::make('industry')
+                    ->options([
+                        'Automotive' => 'Automotive',
+                    'Finance' => 'Finance',
+                    'Healthcare' => 'Healthcare',
+                    'Technology' => 'Technology',
+                    'Manufacturing' => 'Manufacturing',
+                    'Retail' => 'Retail',
+                    'Education' => 'Education',
+                    'Hospitality' => 'Hospitality',
+                    'Real Estate' => 'Real Estate',
+                    'Media & Entertainment' => 'Media & Entertainment',
+                    ])
+                    ->searchable()
+                    ->required(),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
-
-
             ]);
     }
 
@@ -85,7 +96,6 @@ class CompanyResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('industry')
                     ->searchable(),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

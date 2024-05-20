@@ -3,20 +3,17 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VendorContactResource\Pages;
-use App\Filament\Resources\VendorContactResource\RelationManagers;
 use App\Models\VendorContact;
+use App\Models\Vendor;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VendorContactResource extends Resource
 {
     protected static ?string $model = VendorContact::class;
-
 
     protected static ?string $navigationGroup = 'Customer & Supplier';
     protected static ?int $navigationSort = 3;
@@ -25,9 +22,11 @@ class VendorContactResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('vendors_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('vendors_id')
+                ->label('Vendor')
+                ->relationship('vendors', 'name')
+                ->searchable()
+                ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -36,8 +35,6 @@ class VendorContactResource extends Resource
                 Forms\Components\TextInput::make('phone_number')
                     ->tel()
                     ->maxLength(255),
-
-
             ]);
     }
 
@@ -45,9 +42,10 @@ class VendorContactResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('vendors_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('vendor.name')
+                    ->label('Vendor')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
@@ -62,26 +60,23 @@ class VendorContactResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

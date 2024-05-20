@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductsResource\Pages;
 use App\Filament\Resources\ProductsResource\RelationManagers;
 use App\Filament\Resources\WarehousesResource\RelationManagers\ProductsRelationManager;
-use App\Models\Products;
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductsResource extends Resource
 {
-    protected static ?string $model = Products::class;
+    protected static ?string $model = Product::class;
 
 
     protected static ?string $navigationGroup = 'System management';
@@ -120,9 +120,9 @@ class ProductsResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Product Name')
                     ->sortable()
-                    ->description(fn (Products $record): string => $record->description)
+                    ->description(fn (Product $record): string => $record->description)
                     ->searchable(isIndividual:true, isGlobal:true),
-                    Tables\Columns\TextColumn::make('warehouse.name')
+                Tables\Columns\TextColumn::make('warehouse.name')
                         ->label('Warehouse')
                         ->badge()
                         ->searchable(),

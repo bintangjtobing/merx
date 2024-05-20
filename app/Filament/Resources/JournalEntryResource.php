@@ -3,20 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\JournalEntryResource\Pages;
-use App\Filament\Resources\JournalEntryResource\RelationManagers;
 use App\Models\JournalEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class JournalEntryResource extends Resource
 {
     protected static ?string $model = JournalEntry::class;
-
 
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 4;
@@ -25,25 +21,31 @@ class JournalEntryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('account_id')
+                Forms\Components\Select::make('account_id')
+                    ->relationship('account', 'name')
                     ->required()
-                    ->numeric(),
+                    ->label('Account'),
                 Forms\Components\DatePicker::make('date')
-                    ->required(),
+                    ->required()
+                    ->label('Date'),
                 Forms\Components\TextInput::make('debit')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->label('Debit Amount'),
                 Forms\Components\TextInput::make('credit')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->label('Credit Amount'),
                 Forms\Components\Textarea::make('description')
+                    ->label('Description')
+                    ->nullable()
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('transaction_id')
-                    ->numeric(),
-
-
+                Forms\Components\Select::make('transaction_id')
+                    ->relationship('transaction', 'id')
+                    ->label('Transaction ID')
+                    ->nullable(),
             ]);
     }
 
@@ -51,48 +53,54 @@ class JournalEntryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('account_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('account.name')
+                    ->label('Account Name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Date'),
                 Tables\Columns\TextColumn::make('debit')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Debit Amount'),
                 Tables\Columns\TextColumn::make('credit')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Credit Amount'),
                 Tables\Columns\TextColumn::make('transaction_id')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Transaction ID'),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Created At'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Updated At'),
             ])
             ->filters([
-                //
+                // Define any filters here
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            // Define any relation managers here
         ];
     }
 

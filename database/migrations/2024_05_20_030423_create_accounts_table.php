@@ -11,18 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accounts', function (Blueprint $table) {
-            $table->id();
-            $table->string('code')->unique()->nullable();
-            $table->string('name');
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->foreign('parent_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->integer('user_created')->nullable();
-            $table->integer('user_updated')->nullable();
-            $table->timestamps();
-        });
+        // Check if the table already exists before creating it
+        if (!Schema::hasTable('accounts')) {
+            Schema::create('accounts', function (Blueprint $table) {
+                $table->id();
+                $table->string('code')->unique()->nullable();
+                $table->string('name');
+                $table->unsignedBigInteger('parent_id')->nullable();
+                $table->foreign('parent_id')->references('id')->on('accounts')->onDelete('cascade');
+                $table->integer('user_created')->nullable();
+                $table->integer('user_updated')->nullable();
+                $table->timestamps();
+            });
 
-        $this->generateAccountCodes();
+            $this->generateAccountCodes();
+        }
     }
 
     /**
@@ -30,9 +33,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
-            $table->enum('type', ['Aset', 'Liabilitas', 'Ekuitas', 'Pendapatan', 'Pengeluaran', 'Biaya'])->default('Aset');
+        Schema::table('accounts', function (Blueprint $table)
+        {
             $table->dropColumn('code');
+            $table->dropColumn('name');
             $table->dropForeign(['parent_id']);
             $table->dropColumn('parent_id');
         });

@@ -8,19 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class AccountsTransaction extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'type',
         'date',
         'amount',
         'account_id',
+        'description',
     ];
 
     protected static function booted()
     {
-        parent::boot();
-
         static::created(function ($transaction) {
-            // Membuat JournalEntry saat AccountsTransaction baru dibuat
+            // Creating a JournalEntry when a new AccountsTransaction is created
             JournalEntry::create([
                 'account_id' => $transaction->account_id,
                 'date' => $transaction->date,
