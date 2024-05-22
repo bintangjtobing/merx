@@ -7,6 +7,9 @@ use App\Filament\Resources\AccountsBalanceResource\RelationManagers;
 use App\Models\AccountsBalance;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,6 +23,24 @@ class AccountsBalanceResource extends Resource
 
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 2;
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->account->name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['account.name', 'date'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Account' => $record->account->name,
+            'Balance' => number_format($record->balance, 2, '.', ','),
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -61,7 +82,7 @@ class AccountsBalanceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Define any filters here
+                // Define any filters here (e.g. date range filter for 'date')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -74,10 +95,23 @@ class AccountsBalanceResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Account Balance Details')
+                    ->description('Information about the account balance')
+                    ->schema([
+                        TextEntry::make('date')->label('Date'),
+                        TextEntry::make('account.name')->label('Account'),
+                        TextEntry::make('balance')->label('Balance')->disabled()->money('IDR'),
+                    ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
-            // Define any relation managers here
         ];
     }
 
@@ -86,7 +120,7 @@ class AccountsBalanceResource extends Resource
         return [
             'index' => Pages\ListAccountsBalances::route('/'),
             'create' => Pages\CreateAccountsBalance::route('/create'),
-            'view' => Pages\ViewAccountsBalance::route('/{record}'),
+            // 'view' => Pages\ViewAccountsBalance::route('/{record}'),
             'edit' => Pages\EditAccountsBalance::route('/{record}/edit'),
         ];
     }

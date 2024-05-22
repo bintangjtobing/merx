@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
+use App\Filament\Resources\InvoiceResource\RelationManagers\PaymentsRelationManager;
 use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,96 +13,45 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\TextColumn;
 
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
     protected static ?string $navigationGroup = 'Transaction Order';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Forms\Components\Select::make('order_id')
-                ->label('Order')
-                ->relationship('order', 'kode_order')
-                ->searchable()
-                ->required(),
-            Forms\Components\TextInput::make('total_amount')
-                ->required()
-                ->numeric(),
-            Forms\Components\TextInput::make('paid_amount')
-                ->required()
-                ->numeric()
-                ->default(0),
-            Forms\Components\TextInput::make('balance_due')
-                ->required()
-                ->numeric(),
-            Forms\Components\DatePicker::make('invoice_date')
-                ->required(),
-            Forms\Components\DatePicker::make('due_date')
-                ->required(),
-            Forms\Components\Select::make('status')
-                ->options([
-                    'paid' => 'Lunas',
-                    'unpaid' => 'Belum Lunas',
-                    'partial' => 'Cicilan',
-                ])
-                ->required(),
-        ]);
+            ->schema([
+                Forms\Components\TextInput::make('invoice_code')
+                    ->disabled()
+                    ->default(fn () => Invoice::generateInvoiceCode())
+                    ->required(),
+                Forms\Components\Select::make('order_id')
+                    ->relationship('order', 'order_code')
+                    ->required(),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kode_order')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('paid_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('balance_due')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('invoice_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('due_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                TextColumn::make('invoice_code'),
+                TextColumn::make('order.order_code')->label('Order Code'),
+                TextColumn::make('total_amount')->money('idr'),
+                TextColumn::make('status'),
+                TextColumn::make('created_at')->dateTime(),
+                TextColumn::make('updated_at')->dateTime(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            PaymentsRelationManager::class
         ];
     }
 

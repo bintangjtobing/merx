@@ -17,6 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->integer('amount');
             $table->foreignId('account_id')->constrained();
+            $table->longText('description')->nullable();
             $table->timestamps();
             $table->integer('user_created')->nullable();
             $table->integer('user_updated')->nullable();

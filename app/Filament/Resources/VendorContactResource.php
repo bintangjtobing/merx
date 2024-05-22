@@ -24,7 +24,7 @@ class VendorContactResource extends Resource
             ->schema([
                 Forms\Components\Select::make('vendors_id')
                 ->label('Vendor')
-                ->relationship('vendors', 'name')
+                ->relationship('vendor', 'name')
                 ->searchable()
                 ->required(),
                 Forms\Components\TextInput::make('name')

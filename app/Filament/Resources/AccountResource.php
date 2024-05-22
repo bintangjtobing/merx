@@ -6,6 +6,9 @@ use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -94,6 +97,20 @@ class AccountResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Account Information')
+                    ->description('Details about the account')
+                    ->schema([
+                        TextEntry::make('code')->label('Account Code'),
+                        TextEntry::make('name')->label('Account Name'),
+                        TextEntry::make('parent.name')->label('Parent Account'),
+                    ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -106,7 +123,7 @@ class AccountResource extends Resource
         return [
             'index' => Pages\ListAccounts::route('/'),
             'create' => Pages\CreateAccount::route('/create'),
-            'view' => Pages\ViewAccount::route('/{record}'),
+            // 'view' => Pages\ViewAccount::route('/{record}'),
             'edit' => Pages\EditAccount::route('/{record}/edit'),
         ];
     }

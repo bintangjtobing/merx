@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\CreatedAtDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,35 +10,65 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'invoice_id',
-        'amount_paid',
-        'payment_method',
-        'payment_date',
+        'payment_code', 'invoice_id', 'amount'
     ];
-
-    protected $appends = ['kode_payment'];
-
-    public function getKodePaymentAttribute()
-    {
-        if (!is_null($this->created_at)) {
-            return 'PR/' . $this->created_at->format('Y') . '/' . $this->created_at->format('m') . '/' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
-        }
-    }
 
     protected static function boot()
     {
         parent::boot();
-        static::addGlobalScope(new CreatedAtDescScope());
+
+        self::creating(function ($model) {
+            $model->payment_code = self::generatePaymentCode();
+        });
+
+        self::created(function ($payment) {
+            $payment->invoice->refresh(); // Refresh invoice to get the latest data
+            $payment->updateInvoiceStatus();
+            $payment->createPaymentReceipt();
+        });
     }
 
-    // Hubungan ke Invoice
+    public static function generatePaymentCode()
+    {
+        $latestPayment = self::latest('id')->first();
+        $paymentNumber = $latestPayment ? $latestPayment->id + 1 : 1;
+
+        $month = now()->format('m');
+        $year = now()->format('Y');
+        $formattedPaymentNumber = str_pad($paymentNumber, 4, '0', STR_PAD_LEFT);
+
+        return "PR/{$month}/{$year}/{$formattedPaymentNumber}";
+    }
+
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
-    ];
+    public function receipts()
+    {
+        return $this->hasMany(PaymentReceipt::class);
+    }
+
+    public function createPaymentReceipt()
+    {
+        $paymentReceipt = $this->receipts()->create([
+            'amount' => $this->amount,
+        ]);
+
+        return $paymentReceipt;
+    }
+
+    public function updateInvoiceStatus()
+    {
+        $totalPaid = $this->invoice->payments()->sum('amount');
+
+        if ($totalPaid >= $this->invoice->total_amount) {
+            $this->invoice->status = 'paid';
+        } else {
+            $this->invoice->status = 'unpaid';
+        }
+
+        $this->invoice->save();
+    }
 }

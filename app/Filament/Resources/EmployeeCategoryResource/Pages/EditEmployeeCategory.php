@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EmployeeCategoryResource\Pages;
 
 use App\Filament\Resources\EmployeeCategoryResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditEmployeeCategory extends EditRecord
@@ -16,5 +17,13 @@ class EditEmployeeCategory extends EditRecord
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function getSavedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Employee Category Updated.')
+            ->body('The employee category details have been successfully updated.');
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\CreatedAtDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,23 +11,29 @@ class Order extends Model
 
     protected $fillable = [
         'vendor_id',
-        'warehouse_id',
         'status',
-        'details',
-        'total_price',
-        'taxes',
-        'shipping_cost',
-        'no_ref',
     ];
 
-    protected $appends = ['kode_order'];
-
-    public function getKodeOrderAttribute()
+    protected static function boot()
     {
-        $prefix = $this->vendor && $this->vendor->transaction_type ?
-            ($this->vendor->transaction_type == 'customer' ? 'PO' : 'SO') : 'ORD';
+        parent::boot();
 
-        return $prefix . '/' . ($this->created_at ? $this->created_at->format('Y/m') . '/' . str_pad($this->id, 4, '0', STR_PAD_LEFT) : 'unknown_date/' . str_pad($this->id, 4, '0', STR_PAD_LEFT));
+        self::creating(function ($model) {
+            $model->order_code = self::generateOrderCode();
+            $model->status = 'pending';
+        });
+    }
+
+    public static function generateOrderCode()
+    {
+        $latestOrder = self::latest('id')->first();
+        $orderNumber = $latestOrder ? $latestOrder->id + 1 : 1;
+
+        $month = now()->format('m');
+        $year = now()->format('Y');
+        $formattedOrderNumber = str_pad($orderNumber, 4, '0', STR_PAD_LEFT);
+
+        return "ORD/{$month}/{$year}/{$formattedOrderNumber}";
     }
 
     public function vendor()
@@ -36,84 +41,23 @@ class Order extends Model
         return $this->belongsTo(Vendor::class);
     }
 
-    public function warehouse()
+    public function orderItems()
     {
-        return $this->belongsTo(Warehouses::class);
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 
-    public function invoices()
+    public function invoice()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasOne(Invoice::class);
     }
-
-    public function vendorTransaction()
-    {
-        return $this->hasOne(VendorTransaction::class);
-    }
-
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'order_products')
-                    ->withPivot('quantity', 'price_per_unit', 'total_price')
+        return $this->belongsToMany(Product::class, 'order_items')
+                    ->withPivot('quantity', 'price', 'total_price')
                     ->withTimestamps();
     }
-
-    public function calculateTotalPrice()
+    public function getOrderCodeAttribute()
     {
-        return $this->products->sum(fn($product) => $product->pivot->quantity * $product->pivot->price_per_unit) + ($this->taxes ?? 0) + ($this->shipping_cost ?? 0);
-    }
-
-    protected static function boot()
-{
-    parent::boot();
-    static::addGlobalScope(new CreatedAtDescScope());
-    static::saving(function ($order) {
-        if ($order->products->isNotEmpty()) {
-            $totalPrice = $order->products->reduce(fn($carry, $product) => $carry + ($product->pivot->quantity * $product->pivot->price_per_unit), 0);
-            $order->total_price = $totalPrice + ($order->taxes ?? 0) + ($order->shipping_cost ?? 0);
-        }
-    });
-}
-
-    public function createInvoice()
-    {
-        $totalAmount = $this->total_price;
-        $invoice = $this->invoices()->create([
-            'total_amount' => $totalAmount,
-            'balance_due' => $totalAmount,
-            'invoice_date' => now(),
-            'due_date' => now()->addDays(30),
-            'status' => 'unpaid',
-        ]);
-
-        $transactionType = $this->vendor->transaction_type === 'customer' ? 'credit' : 'debit';
-        $accountId = $this->determineAccountId($transactionType);
-
-        $description = "Invoice #{$invoice->id} created based on order #{$this->kode_order}";
-        AccountsTransaction::create([
-            'account_id' => $accountId,
-            'date' => now(),
-            'type' => $transactionType,
-            'amount' => $invoice->total_amount,
-            'description' => $description,
-        ]);
-
-        if ($transactionType === 'credit') {
-            $accountsReceivable = Account::firstOrCreate(['name' => 'Piutang Usaha']);
-            $accountsReceivable->balance += $invoice->total_amount;
-            $accountsReceivable->save();
-        } elseif ($transactionType === 'debit') {
-            $cashOrBankAccount = Account::firstOrCreate(['name' => 'Kas']);
-            $cashOrBankAccount->balance -= $invoice->total_amount;
-            $cashOrBankAccount->save();
-        }
-
-        return $invoice;
-    }
-
-    protected function determineAccountId(string $transactionType): ?int
-    {
-        $account = $transactionType === 'credit' ? Account::firstOrCreate(['name' => 'Piutang Usaha']) : Account::firstOrCreate(['name' => 'Kas']);
-        return $account ? $account->id : null;
+        return $this->attributes['order_code'];
     }
 }

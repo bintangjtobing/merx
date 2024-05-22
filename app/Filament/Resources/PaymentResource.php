@@ -3,38 +3,37 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Filament\Resources\PaymentResource\RelationManagers;
 use App\Models\Payment;
-use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\TextColumn;
 
 class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
-
     protected static ?string $navigationGroup = 'Transaction Order';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('invoice_id')
-                    ->label('Invoice')
-                    ->relationship('invoice', 'kode_invoice')
-                    ->searchable()
+                Forms\Components\TextInput::make('payment_code')
+                    ->disabled()
+                    ->default(fn () => Payment::generatePaymentCode())
                     ->required(),
-                Forms\Components\TextInput::make('amount_paid')
+                Forms\Components\Select::make('invoice_id')
+                    ->relationship('invoice', 'invoice_code')
+                    ->required(),
+                Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('payment_method')
-                    ->required(),
-                Forms\Components\DatePicker::make('payment_date')
-                    ->required(),
             ]);
     }
 
@@ -42,36 +41,11 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('invoice.kode_invoice')
-                    ->label('Invoice')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('amount_paid')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('payment_method'),
-                Tables\Columns\TextColumn::make('payment_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                TextColumn::make('payment_code'),
+                TextColumn::make('invoice.invoice_code')->label('Invoice Code'),
+                TextColumn::make('amount')->money('idr'),
+                TextColumn::make('created_at')->dateTime(),
+                TextColumn::make('updated_at')->dateTime(),
             ]);
     }
 

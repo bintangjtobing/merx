@@ -6,11 +6,14 @@ use App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource\RelationManagers;
 use App\Models\Company;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CompanyResource extends Resource
@@ -20,11 +23,35 @@ class CompanyResource extends Resource
     protected static ?string $navigationGroup = 'Company Management';
     protected static ?int $navigationSort = 1;
 
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'phone_number'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return []; // Consider adding details here if needed (e.g., industry)
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                // Company Information Section
+                Section::make('Company Information')
+                    ->description('Basic details about the company')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
@@ -34,8 +61,15 @@ class CompanyResource extends Resource
                 Forms\Components\TextInput::make('phone_number')
                     ->tel()
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('logo')
+                    ->maxLength(255)
+                    ])->columns(3),
+
+
+                // Contact Information Section
+                Section::make('Contact Information')
+                    ->description('Address and location details')
+                    ->schema([
+                        Forms\Components\FileUpload::make('logo')
                     ->disk('public')
                     ->directory('logos')
                     ->previewable(true)
@@ -50,24 +84,29 @@ class CompanyResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('country')
                     ->maxLength(255),
-                Forms\Components\Select::make('industry')
+                    ])->columns(2),
+
+                // Additional Information Section
+                Section::make('Additional Information')
+                    ->description('Industry and company description')->schema([
+                        Forms\Components\Select::make('industry')
                     ->options([
                         'Automotive' => 'Automotive',
-                    'Finance' => 'Finance',
-                    'Healthcare' => 'Healthcare',
-                    'Technology' => 'Technology',
-                    'Manufacturing' => 'Manufacturing',
-                    'Retail' => 'Retail',
-                    'Education' => 'Education',
-                    'Hospitality' => 'Hospitality',
-                    'Real Estate' => 'Real Estate',
-                    'Media & Entertainment' => 'Media & Entertainment',
+                        'Finance' => 'Finance',
+                        'Healthcare' => 'Healthcare',
+                        'Technology' => 'Technology',
+                        'Manufacturing' => 'Manufacturing',
+                        'Retail' => 'Retail',
+                        'Education' => 'Education',
+                        'Hospitality' => 'Hospitality',
+                        'Real Estate' => 'Real Estate',
+                        'Media & Entertainment' => 'Media & Entertainment',
                     ])
                     ->searchable()
                     ->required(),
                 Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-            ]);
+                    ])->columns(2),
+                ]);
     }
 
     public static function table(Table $table): Table

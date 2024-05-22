@@ -25,17 +25,18 @@ class VendorTransactionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('vendors_id')
                 ->label('Vendor')
-                ->relationship('vendors', 'name')
+                ->relationship('vendor', 'name')
                 ->searchable()
                 ->required(),
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric()
                     ->label('Amount'),
-                Forms\Components\Select::make('product_id')
+                    Forms\Components\Select::make('product_id')
                     ->label('Product')
-                    ->options(Product::all()->pluck('name', 'id'))
-                    ->searchable(),
+                    ->relationship('products', 'name')
+                    ->searchable()
+                    ->required(),
                 Forms\Components\TextInput::make('unit_price')
                     ->numeric()
                     ->label('Unit Price'),
@@ -62,7 +63,7 @@ class VendorTransactionResource extends Resource
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Amount')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('product.name')
+                Tables\Columns\TextColumn::make('products.name')
                     ->label('Product')
                     ->sortable()
                     ->searchable(),

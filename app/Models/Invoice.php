@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\CreatedAtDescScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,58 +10,52 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
+        'invoice_code',
         'order_id',
-        'total_amount',
-        'paid_amount',
-        'balance_due',
-        'invoice_date',
-        'due_date',
         'status',
     ];
-
-    protected $appends = ['kode_invoice'];
-
-    public function getKodeInvoiceAttribute()
-    {
-        if (!is_null($this->created_at)) {
-            return 'INV/' . $this->created_at->format('Y') . '/' . $this->created_at->format('m') . '/' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
-        }
-    }
-
-    public function getStatusAttribute($value)
-    {
-        switch ($value) {
-            case 'paid':
-                return 'Lunas';
-            case 'unpaid':
-                return 'Belum Lunas';
-            case 'partial':
-                return 'Cicilan';
-            default:
-                return 'Unknown';
-        }
-    }
 
     protected static function boot()
     {
         parent::boot();
-        static::addGlobalScope(new CreatedAtDescScope());
+
+        self::creating(function ($model) {
+            $model->invoice_code = self::generateInvoiceCode();
+            $model->status = 'unpaid';
+            $model->calculateTotalAmount();
+        });
     }
 
-    // Hubungan ke Order
+    public static function generateInvoiceCode()
+    {
+        $latestInvoice = self::latest('id')->first();
+        $invoiceNumber = $latestInvoice ? $latestInvoice->id + 1 : 1;
+
+        $month = now()->format('m');
+        $year = now()->format('Y');
+        $formattedInvoiceNumber = str_pad($invoiceNumber, 4, '0', STR_PAD_LEFT);
+
+        return "INV/{$month}/{$year}/{$formattedInvoiceNumber}";
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    // Hubungan ke Payments
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
 
-    protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
-    ];
+    public function calculateTotalAmount()
+    {
+        // Calculate total_amount based on OrderItem prices
+        $orderItems = OrderItem::where('order_id', $this->order_id)->get();
+        $totalAmount = $orderItems->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        $this->total_amount = $totalAmount;
+    }
 }

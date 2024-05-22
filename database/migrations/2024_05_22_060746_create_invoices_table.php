@@ -13,22 +13,16 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_code')->unique();
             $table->unsignedBigInteger('order_id');
-            $table->integer('total_amount');
-            $table->integer('paid_amount')->default(0);
-            $table->integer('balance_due');
-            $table->date('invoice_date');
-            $table->date('due_date');
-            $table->enum('status', ['unpaid', 'partial', 'paid']);
+            $table->decimal('total_amount', 10, 2);
+            $table->string('status')->default('unpaid');
             $table->timestamps();
 
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('invoices');

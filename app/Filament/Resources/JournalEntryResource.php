@@ -68,10 +68,9 @@ class JournalEntryResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->label('Credit Amount'),
-                Tables\Columns\TextColumn::make('transaction_id')
-                    ->numeric()
-                    ->sortable()
-                    ->label('Transaction ID'),
+                Tables\Columns\TextColumn::make('transaction.type')
+                    ->label('Transaction Type')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('description')
                     ->label('Description')
                     ->toggleable(),

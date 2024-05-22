@@ -17,4 +17,8 @@ class Warehouses extends Model
     {
         return $this->hasMany(Product::class, 'warehouse_id');
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

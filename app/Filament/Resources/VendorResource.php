@@ -2,6 +2,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VendorResource\Pages;
+use App\Filament\Resources\VendorResource\RelationManagers\OrdersRelationManager;
 use App\Models\Vendor;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -94,7 +95,7 @@ class VendorResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Define any relation managers here
+            OrdersRelationManager::class
         ];
     }
 

@@ -6,9 +6,14 @@ use App\Filament\Resources\AccountsTransactionResource\Pages;
 use App\Models\AccountsTransaction;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Support\Htmlable;
 
 class AccountsTransactionResource extends Resource
 {
@@ -17,6 +22,25 @@ class AccountsTransactionResource extends Resource
     protected static ?string $navigationGroup = 'Finance management';
     protected static ?int $navigationSort = 3;
 
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->account->name;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['account.name', 'type', 'date'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Account' => $record->account->name,
+            'Transaction Type' => $record->type,
+            'Amount' => number_format($record->amount, 2, '.', ''),
+            'Description' => $record->description,
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -92,11 +116,25 @@ class AccountsTransactionResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Account Transaction Details')
+                    ->description('Information about the account transaction')
+                    ->schema([
+                        TextEntry::make('type')->label('Transaction Type'),
+                        TextEntry::make('date')->label('Date'),
+                        TextEntry::make('amount')->label('Amount'),
+                        TextEntry::make('account.name')->label('Account'),
+                        TextEntry::make('description')->label('Description'),
+                    ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
-        return [
-            // Define any relation managers here
-        ];
+        return []; // Empty array
     }
 
     public static function getPages(): array
@@ -104,7 +142,7 @@ class AccountsTransactionResource extends Resource
         return [
             'index' => Pages\ListAccountsTransactions::route('/'),
             'create' => Pages\CreateAccountsTransaction::route('/create'),
-            'view' => Pages\ViewAccountsTransaction::route('/{record}'),
+            // 'view' => Pages\ViewAccountsTransaction::route('/{record}'),
             'edit' => Pages\EditAccountsTransaction::route('/{record}/edit'),
         ];
     }

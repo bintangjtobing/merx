@@ -36,9 +36,10 @@ class EmployeeResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('company_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('company_id')
+                    ->label('What company')
+                    ->relationship('company','name')
+                    ->searchable(),
                 Forms\Components\TextInput::make('job_title')
                     ->required()
                     ->maxLength(255),
@@ -66,12 +67,14 @@ class EmployeeResource extends Resource
 
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('department_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('category_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('department_id')
+                    ->label('Employee Division')
+                    ->relationship('department','name')
+                    ->searchable(),
+                Forms\Components\Select::make('category_id')
+                    ->label('Category Contract')
+                    ->relationship('category','name')
+                    ->searchable(),
             ]);
     }
 
@@ -85,8 +88,8 @@ class EmployeeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone_number')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('company_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('company.name')
+                    ->label('Company')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('job_title')
                     ->searchable(),
@@ -116,11 +119,11 @@ class EmployeeResource extends Resource
                 Tables\Columns\TextColumn::make('emergency_contact_phone_number')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('department_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('department.name')
+                    ->label('Department')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('category_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Category Contract')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

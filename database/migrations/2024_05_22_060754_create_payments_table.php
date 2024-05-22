@@ -13,19 +13,15 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->string('payment_code')->unique();
             $table->unsignedBigInteger('invoice_id');
-            $table->integer('amount_paid');
-            $table->enum('payment_method', ['cash', 'credit', 'online', 'other']);
-            $table->date('payment_date');
+            $table->decimal('amount', 10, 2);
             $table->timestamps();
 
-            $table->foreign('invoice_id')->references('id')->on('invoices');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('payments');
